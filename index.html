@@ -1,18 +1,26 @@
+<!DOCTYPE html>
 <html>
+
 <head>
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>anyCSVtable</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-  <script src="./script.js"></script>
 </head>
+
 <body>
-  <main>
-    <div id="table-container">
-    </div>
-    <div id="disp-options">
-      <label><input type="checkbox" id="disp-sample" checked />チェックボックスサンプル</label>
-    </div>
-  </main>
+  <div>
+    <p id="message"></p>
+    <input id="load" type="button" value="Load">
+  </div>
+  <textarea id="log">
+    </textarea>
+  <hr>
+  <div id="table-container"></div>
+  <div id="paging-first-datatable"></div>
+  <script src="script.js"></script>
+
 </body>
+
 </html>
