@@ -1,231 +1,329 @@
-$(function() {
+let gMasterHead = [];
+let gMasterData = [];
+let gDisplayedData = [];
 
-  /*read local file*/
-  const pickerOpts = {
+$(function () {
+  /*read csv file automatically (CORS policy legal)*/
+  async function autoLoadCSVData() {
+    const _RESOPNSE = await fetch("./データ抽出用.csv");
+    const _FILE_CONTENTS = await _RESOPNSE.text();
+    gMasterData = csvTo2DArray(_FILE_CONTENTS);
+    gMasterHead = JSON.parse(JSON.stringify(gMasterData[0]));
+    gMasterData.shift();
+    gDisplayedData = JSON.parse(JSON.stringify(gMasterData));
+    console.log(gMasterData);
+    initialzeTableContainer();
+    generatePagination();
+    DisplayNewTable();
+  }
+  autoLoadCSVData();
+
+  /*read local file manually*/
+  const PICKER_OPTS = {
     types: [
       {
-        description: 'Texts(.txt)',
+        description: "Texts(.txt)",
         accept: {
-          'text/*': ['.txt']
-        }
-      }
+          "text/*": [".txt"],
+        },
+      },
     ],
     multiple: false,
-  }
+  };
 
-  let start = 0;
-  let end = 0;
-  $("#load").click(async function() {
+  $("#load").on("click", async function () {
+    let _start = 0;
+    let _end = 0;
 
-    [fileHandle] = await window.showOpenFilePicker(pickerOpts);
+    [fileHandle] = await window.showOpenFilePicker(PICKER_OPTS);
 
     $("#message").html("Loading...");
-    start = performance.now();			//track start
-    const file = await fileHandle.getFile();
-    const fileContents = await file.text();
-    const fileCSV = csvTo2DArray(fileContents);
-    console.log(fileCSV);
-    objectToSortableTable(fileCSV);
+    _start = performance.now(); //track start
+    const _FILE = await fileHandle.getFile();
+    const _FILE_CONTENTS = await _FILE.text();
+    gMasterData = csvTo2DArray(_FILE_CONTENTS);
+    gMasterHead = JSON.parse(JSON.stringify(gMasterData[0]));
+    gMasterData.shift();
+    gDisplayedData = JSON.parse(JSON.stringify(gMasterData));
+    console.log(gMasterData);
 
-    end = performance.now();			//track end
-    const time = (end - start) | 0;
-    $("#message").html("Data is successfully loaded in " + (time / 1000) + "s");
+    /* initialize and display table when file successfully loaded */
+    initialzeTableContainer();
+    generatePagination();
+    DisplayNewTable();
+
+    _end = performance.now(); //track end
+    const _TIME = (_end - _start) | 0;
+    $("#message").html("Data loaded successfully in " + _TIME / 1000 + "s");
   });
   /* read local file end */
 
-  /** convert csv txt to 2Darray */
-
-  function csvTo2DArray(csvText) {
-    csvText = csvText.replace(/\"([^\"]*?)\n([^\"]*?)\"/g, '"$1$2"');
-    var rows = csvText.split(/\n|\r/g); //カバーしきれてないのでexcel側で何とかしてください
-    var result = [["CC/AK番号", "品番", "品目テキスト", "M#", "製造拠点", "製造場所", "Production Method", "Lifecycle Phase", "Use Status(FL)", "Use Status(FR)", "Use Status(Synthetic)", "Item Number", "Item Description", "Recipe Division", "Use Category", "Create User", "Create User_", "担当者", "カテゴリー", "検索用フリーワード", "粉砕", "圧搾", "固液抽出", "液液抽出", "抽出溶剤", "水蒸気蒸留", "SCC", "超臨界", "分子蒸留", "単蒸留・精留", "固液分離", "活性炭処理", "樹脂処理", "酵素", "加熱", "濃縮(カラム以外)", "カラム濃縮", "殺菌", "除菌", "それ以外", "GF番号", "トラブル", "備考"]];
-    for (var i = 12; i < rows.length; i++) {  //ハードコーディングしてます。構造変わった時注意。
-      var cols = rows[i].split(',');
-      if (cols.length == 43) {
-        result.push(cols);
-      }
-    }
-
-    return result;
-  }
-  /** convert end */
-
-  /** convert object to sortable table */
-  function objectToSortableTable(csv) {
-    const tableContainer = $("#table-container");
-    const table = $("<table>").attr("id", "sortableTable");
-    const thead = $("<thead>");
-    const tbody = $("<tbody>");
-
-    let data_dc = JSON.parse(JSON.stringify(csv));  //dataをディープコピーして使う
-
-    data_dc.forEach((item) => {
-      //delete item["sample"];
-    });
-
-    tableContainer.html("");
-
-    const headerRow = $("<tr>").addClass("sortable");
-    Object.keys(data_dc[0]).forEach((key) => {
-      const th = $("<th>").attr("cols", key).text(data_dc[0][key]);
-      headerRow.append(th);
-    });
-    thead.append(headerRow);
-
-    data_dc.forEach((item) => {
-      if (isDataToDisplay(item)) {
-        const tr = $("<tr>");
-        Object.values(item).forEach((value) => {
-          const td = $("<td>").text(value);
-          tr.append(td);
-        });
-        tbody.append(tr);
-      }
-    });
-    table.append(thead);
-    table.append(tbody);
-    tableContainer.append(table);
-
-    $("th").on("click", function() { tSort() });
-  }
-  /** convert end */
-
-  function isDataToDisplay(item) {
-    return true;
-  }
+  $("#search-in").on("change", function () {
+    searchAll();
+  });
 });
 
-function tSort() {
-  //===============================================================
-  //  ソート実行
-  //===============================================================
-
-  // 「ts_A_1」形式 [1]:A-昇順,D-降順  [2]:列番号
-  var wSortKey = ["", "A", "1"];
-
-  let wTABLE = $("#sortableTable")[0];
-  let wTR = wTABLE.rows;
-  let wItem = [];              // クリックされた列の値
-  let wItemSort = [];              // クリックされた列の値（項目ソート後）
-  let wMoveRow = [];              // 元の行位置（行削除考慮位置）
-  var wNotNum = 0;               // 1 : 数字でない
-  var wStartRow = 1; // ソートを開始する行はボタンの次の行
-
-  // ------------------------------------------------------
-  //  クリックされた列の値を取得する
-  // ------------------------------------------------------
-  for (var i = wStartRow; i < wTR.length; i++) {
-    var j = i - wStartRow;
-    wItem[j] = wTR[i].cells[wSortKey[2]].innerText.toString();
-
-    if (wItem[j].match(/^[-]?[0-9,\.]+$/)) {
-    } else {
-      wNotNum = 1;
+/* csvTo2DArray(csvText)
+ * convert csv txt to 2Darray
+ * csvText: Loaded csvFile [string]
+ */
+function csvTo2DArray(csvText) {
+  let _result = [];
+  const _ROWS = csvText.split(/\n/g);
+  for (var i = 0; i < _ROWS.length; i++) {
+    const _COLS = _ROWS[i].split(",");
+    if (_COLS[0]) {
+      _result.push(_COLS);
     }
-
   }
-  // ソート用に配列をコピー
-  wItemSort = wItem.slice(0, wItem.length);
+  return _result;
+}
 
-  // ------------------------------------------------------
-  //  列の値でソートを実行
-  // ------------------------------------------------------
-  if (wSortKey[1] == 'A') {
-    if (wNotNum == 0) {
-      wItemSort.sort(sortNumA);           // 数値で昇順
-    } else {
-      wItemSort.sort(sortStrA);           // 文字で昇順
+/* initializeTableContainer()
+ * #table-container内にtable,theadを生成する
+ */
+function initialzeTableContainer() {
+  const _ELEM_DIV_TABLE_CONTAINER = $("#table-container");
+  _ELEM_DIV_TABLE_CONTAINER.empty(); //初期化
+
+  const _ELEM_TABLE = $("<table>").attr("id", "sortableTable");
+  const _ELEM_THEAD = $("<thead>");
+  const _ELEM_TR_HEADER_ROW = $("<tr>").addClass("sortable");
+  Object.keys(gMasterHead).forEach((key) => {
+    const _ELEM_TH = $("<th>").attr("cols", key).text(gMasterHead[key]);
+    _ELEM_TH.append(`<div class="indicator"></div>`);
+    const _ELEM_DIV_MODAL = $(`<div class="single-filter-modal"></div>`);
+    _ELEM_DIV_MODAL.append(
+      `<input type="text" class="search-col-in" placeholder="この列を検索..." />`
+    );
+    _ELEM_DIV_MODAL.append(`<div class="single-filter-checkboxes"></div>`);
+
+    const _ELEM_A_FILTER = $(`<a class="single-filter" tabindex="0">F</a>`);
+    _ELEM_A_FILTER.append(_ELEM_DIV_MODAL);
+    _ELEM_TH.append(_ELEM_A_FILTER);
+    _ELEM_TR_HEADER_ROW.append(_ELEM_TH);
+    const _ELEM_LABEL = $("<label>").attr("cols", key);
+    const _ELEM_INPUT_CHECKBOX = $(`<input type="checkbox">`)
+      .attr("cols", key)
+      .prop("checked", "true");
+    _ELEM_LABEL.append(_ELEM_INPUT_CHECKBOX);
+    _ELEM_LABEL.append(gMasterHead[key]);
+    $("#cols-filter-modal-div").append(_ELEM_LABEL);
+  });
+  _ELEM_THEAD.append(_ELEM_TR_HEADER_ROW);
+  _ELEM_TABLE.append(_ELEM_THEAD);
+  _ELEM_DIV_TABLE_CONTAINER.append(_ELEM_TABLE);
+
+  /*initialize checkbox-filter*/
+  $(`div.single-filter-checkboxes`).empty(); //これいらない
+  $.each($(`div.single-filter-checkboxes`), function (index, elem) {
+    const _COLUMN_SET = new Set();
+    gMasterData.forEach((rows) => {
+      _COLUMN_SET.add(rows[index]);
+    });
+    const _COLUMN_ARRAY = Array.from(_COLUMN_SET).sort();
+    _COLUMN_ARRAY.forEach((val) => {
+      const _ELEM_LABEL = $("<label>");
+      const _ELEM_INPUT_CHECKBOX = $(`<input type="checkbox">`)
+        .attr("value", val)
+        .prop("checked", "true");
+      _ELEM_LABEL.append(_ELEM_INPUT_CHECKBOX);
+      _ELEM_LABEL.append(val);
+      $(elem).append(_ELEM_LABEL);
+    });
+  });
+
+  /* attach on-events */
+  $(`#cols-filter-modal input[type="checkbox"]`).off();
+  $(`#cols-filter-modal input[type="checkbox"]`).on("change", function () {
+    filterCols();
+  });
+  $(`th a.single-filter input[type="text"].search-col-in,
+     div.single-filter-checkboxes input[type="checkbox"]`).on(
+    "change",
+    function () {
+      searchAll();
     }
+  );
+}
+
+/** convert object to sortable table */
+function DisplayNewTable() {
+  const _ELEM_DIV_TABLE_CONTAINER = $("#table-container");
+
+  const _ELEM_TABLE = $("table#sortableTable");
+  $("table#sortableTable tbody").remove();
+  const _ELEM_TBODY = $("<tbody>");
+
+  const _ELEM_INPUT_RADIO_PAGINATION = $(
+    "div#table-pagination input[type='radio']"
+  );
+  let index = _ELEM_INPUT_RADIO_PAGINATION.index(
+    _ELEM_INPUT_RADIO_PAGINATION.filter(":checked")
+  );
+  for (
+    i = index * 20;
+    i < Math.min(index * 20 + 20, gDisplayedData.length);
+    i++
+  ) {
+    const _ITEM = gDisplayedData[i];
+    const _ELEM_TR = $("<tr>");
+    Object.values(_ITEM).forEach((value) => {
+      const td = $("<td>").text(value);
+      _ELEM_TR.append(td);
+    });
+    _ELEM_TBODY.append(_ELEM_TR);
+  }
+  _ELEM_TABLE.append(_ELEM_TBODY);
+  _ELEM_DIV_TABLE_CONTAINER.append(_ELEM_TABLE);
+  filterCols();
+
+  $("div.indicator").off();
+
+  $("div.indicator").on("click", function () {
+    gSortCol = +$(this).parent().attr("cols");
+    tSort($(this).parent());
+  });
+}
+
+function generatePagination() {
+  $("div#table-pagination").empty();
+  const _PAGE_COUNT = ((gDisplayedData.length / 20) | 0) + 1;
+  for (i = 0; i < _PAGE_COUNT; i++) {
+    $("div#table-pagination").append(
+      `<label id="page-${i + 1}"><input type="radio" name="radio-pagination"${
+        i == 0 ? " checked" : ""
+      }>${i + 1}</label>`
+    );
+  }
+  $("div#table-pagination label").on("click", function () {
+    DisplayNewTable();
+  });
+}
+
+/*
+ * filterCols()
+ * 列表示設定を反映する
+ * 表示設定の更新時と表の再生成時に実行する
+ */
+function filterCols() {
+  $.each($("#cols-filter input"), function (index, element) {
+    $.each($("tr"), function (i, e) {
+      $($(e).children("th, td").toArray()[index]).attr(
+        "style",
+        $(element).prop("checked") ? "" : "display:none"
+      );
+    });
+  });
+}
+
+/*
+ * searchAll()
+ */
+function searchAll() {
+  let _hitCount = 0;
+  const _REGEXP = $("#search-in").val();
+  if (_REGEXP === "") {
+    $("#message").html(``);
+    gDisplayedData = JSON.parse(JSON.stringify(gMasterData));
   } else {
-    if (wNotNum == 0) {
-      wItemSort.sort(sortNumD);           // 数値で降順
-    } else {
-      wItemSort.sort(sortStrD);           // 文字で降順
-    }
+    gDisplayedData = [];
+    gMasterData.forEach((single) => {
+      for (i = 0; i < single.length; i++) {
+        if (single[i].match(_REGEXP)) {
+          _hitCount++;
+          gDisplayedData.push(single);
+          break;
+        }
+      }
+    });
+    $("#message").html(`検索結果：${_hitCount}件`);
   }
+  searchSingleCol();
+}
 
-  // ------------------------------------------------------
-  //  行の入れ替え順を取得
-  //    ソート前後の列の値を比較して行の移動順を確定
-  //    配列を削除して前詰めしている（移動時も同じ動き）
-  // ------------------------------------------------------
-  for (var i = 0; i < wItemSort.length; i++) {
-    for (var j = 0; j < wItem.length; j++) {
-      if (wItemSort[i] == wItem[j]) {
-        wMoveRow[i] = j + wStartRow;
-        wItem.splice(j, 1);
-        break;
+/*
+ * searchSingleCol()
+ * 240301
+ * 個別の列検索を実行する
+ * 全ての列に対して検索条件を総ざらいし、検索条件がなければ全件表示
+ * 検索条件があれば一行ずつ照合する
+ * 全文検索と相互作用がよくないので要改修
+ */
+function searchSingleCol() {
+  let _hitCount = 0;
+  let _regexps = [],
+    meaning = 0;
+  $.each(
+    $(`th a.single-filter input[type="text"].search-col-in`),
+    function (index, element) {
+      const _V = $(element).val();
+      _regexps.push(_V);
+      if (_V) {
+        meaning++;
       }
     }
+  );
+  if (!meaning) {
+    //全文検索から来た時と直接列検索した時で処理が違うかもしれない
+  } else {
+    let _copyOfDisplayedData = JSON.parse(JSON.stringify(gDisplayedData));
+    gDisplayedData = [];
+    _copyOfDisplayedData.forEach((single) => {
+      for (i = 0; i < single.length; i++) {
+        if (!single[i].match(_regexps[i])) {
+          break;
+        } else if (i + 1 == single.length) {
+          _hitCount++;
+          gDisplayedData.push(single);
+        }
+      }
+    });
+    $("#message").html(`検索結果：${_hitCount}件`);
   }
-
-  // ------------------------------------------------------
-  //  ソート順に行を移動
-  // ------------------------------------------------------
-  for (var i = 0; i < wMoveRow.length; i++) {
-
-
-    var wMoveTr = wTABLE.rows[wMoveRow[i]];                  // 移動対象
-    var wLastTr = wTABLE.rows[wTABLE.rows.length - 1];   // 最終行
-
-    // 最終行にコピーしてから移動元を削除
-    wLastTr.parentNode.insertBefore(wMoveTr.cloneNode(true), wLastTr.nextSibling);
-    wTABLE.deleteRow(wMoveRow[i]);
-
-  }
-
-  // ------------------------------------------------------
-  //  クリックされたソートボタンの色付け
-  // ------------------------------------------------------
-  var elmImg = document.getElementsByClassName('tsImg');
-  for (var i = 0; i < elmImg.length; i++) {
-
-    if (elmImg[i].id == argObj.id) {
-      elmImg[i].style.backgroundColor = '#ffff00';
-    } else {
-      elmImg[i].style.backgroundColor = '';
-    }
-
-  }
-
+  generatePagination();
+  DisplayNewTable();
 }
 
-function sortNumA(a, b) {
-  //===============================================================
-  //  数字のソート関数（昇順）
-  //===============================================================
-  a = parseInt(a.replace(/,/g, ''));
-  b = parseInt(b.replace(/,/g, ''));
-  return a - b;
+function tSort(trigger) {
+  let start = 0;
+  let end = 0;
+  $("#message").html("sort running...");
+  start = performance.now(); //track start
+
+  gDisplayedData = JSON.parse(JSON.stringify(gMasterData));
+  if ($(trigger).hasClass("ascending")) {
+    $("th").removeClass("ascending");
+    $("th").removeClass("descending");
+    gDisplayedData.sort(sortArrStrD);
+    $(trigger).addClass("descending");
+  } else {
+    $("th").removeClass("ascending");
+    $("th").removeClass("descending");
+    gDisplayedData.sort(sortArrStrA);
+    $(trigger).addClass("ascending");
+  }
+  DisplayNewTable();
+
+  end = performance.now(); //track end
+  const time = (end - start) | 0;
+  $("#message").html("Data sort complete in " + time / 1000 + "s");
 }
 
-function sortNumD(a, b) {
-  //===============================================================
-  //  数字のソート関数（降順）
-  //===============================================================
-  a = parseInt(a.replace(/,/g, ''));
-  b = parseInt(b.replace(/,/g, ''));
-  return b - a;
-}
+//ソート対象にする列番号
+let gSortCol = 0;
 
-function sortStrA(a, b) {
-  //===============================================================
-  //  文字のソート関数（昇順）
-  //===============================================================
-  a = a.toString();
-  b = b.toString();
-  if (a < b) { return -1; }
-  else if (a > b) { return 1; }
+function sortArrStrA(a, b) {
+  a = a[gSortCol].toString();
+  b = b[gSortCol].toString();
+  if (a < b) {
+    return -1;
+  } else if (a > b) {
+    return 1;
+  }
   return 0;
 }
 
-function sortStrD(a, b) {
-  //===============================================================
-  //  文字のソート関数（降順）
-  //===============================================================
-  a = a.toString();
-  b = b.toString();
-  if (b < a) { return -1; }
-  else if (b > a) { return 1; }
-  return 0;
+function sortArrStrD(a, b) {
+  return -sortArrStrA(a, b);
 }

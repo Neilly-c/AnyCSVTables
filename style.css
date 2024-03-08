@@ -2,6 +2,118 @@ html {
   height: 100%;
   width: 100%;
 }
+body {
+  margin: 0;
+}
+
+header {
+  width: 100%;
+  height: 72px;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  background: #dddddd;
+}
+
+header > div {
+  display: flex;
+  flex-direction: row;
+  padding: 4px;
+}
+
+div#table-pagination label {
+  display: inline-block;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  border-radius: 0.5em;
+  margin: 0 2px;
+  padding: 0.2em 0.5em;
+}
+
+div#table-pagination label:has(> input[type="radio"]:checked) {
+  display: inline-block;
+  border: 1px solid #cccc00;
+  background: #ffff66;
+}
+
+div#table-pagination input {
+  display: none;
+}
+
+a#cols-filter,
+a.single-filter {
+  position: relative;
+  display: inline-block;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  border-radius: 0.5em;
+  margin: 0 2px;
+  padding: 0.2em 0.5em;
+  cursor: pointer;
+}
+
+div#cols-filter-modal,
+div.single-filter-modal {
+  display: none;
+}
+
+a.single-filter:focus-within {
+  z-index: 1;
+}
+
+a#cols-filter:focus-within div#cols-filter-modal,
+a.single-filter:focus-within div.single-filter-modal {
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 640px;
+  max-width: 80%;
+  padding: 0.2em 1em;
+  border: #eeffff;
+  background: #ffffff;
+  box-shadow: 0 0 5px 5px #66666666;
+  z-index: 10;
+}
+
+div#cols-filter-modal label {
+  display: inline-block;
+  margin: 0.1em 1em 0.1em 0;
+}
+
+div.single-filter-checkboxes {
+  border: 1px solid #999;
+  padding: 4px 8px;
+  overflow-y: scroll;
+  max-height: 50vh;
+}
+
+div.single-filter-checkboxes label {
+  display: block;
+}
+
+div.single-filter-checkboxes label:hover {
+  background-color: #ffff99;
+}
+
+div.single-filter-checkboxes label:has(> input[type="checkbox"]:checked) {
+  background-color: #ffffcc;
+}
+
+main {
+  padding: 72px 0 56px;
+}
+
+footer {
+  width: 100%;
+  height: 56px;
+  overflow: hidden;
+  position: fixed;
+  bottom: 0;
+  z-index: 100;
+  background: #dddddd;
+  padding: 2px;
+}
 
 table {
   border-collapse: collapse;
@@ -9,18 +121,45 @@ table {
   margin-top: 20px;
 }
 
+thead {
+  position: sticky;
+  top: 72px;
+  background: #eee;
+  z-index: 10;
+}
+
+thead th {
+  background: #eee;
+}
+
 th,
 td {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
+  min-width: 6em;
+}
+
+tbody tr > td {
+  background: white;
+}
+
+tbody tr:nth-child(even) > td {
+  background: #fafafa;
+}
+
+th:nth-child(-n + 3),
+td:nth-child(-n + 3) {
+  position: sticky;
+  left: 0;
+  z-index: 5;
 }
 
 tr.sortable > th {
   cursor: pointer;
 }
 
-th>div {
+th > div {
   width: 100%;
   height: 100%;
   display: flex;
@@ -28,19 +167,24 @@ th>div {
   align-items: center;
 }
 
-div.indicator{
+div.indicator {
   width: 12px;
   height: 12px;
   background-color: #ddd;
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 }
 
-div.indicator.ascending{
+th.ascending,
+th.descending {
+  background-color: #ffeedd;
+}
+
+th.ascending > div.indicator {
   background-color: #ff6666;
   clip-path: polygon(100% 50%, 50% 100%, 0% 50%);
 }
 
-div.indicator.descending{
+th.descending > div.indicator {
   background-color: #ff6666;
   clip-path: polygon(50% 0%, 100% 50%, 0% 50%);
 }
