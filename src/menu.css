@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap");
+
+:root {
+  background: #e3f1ee;
+  font-family: "M PLUS Rounded 1c", sans-serif;
+}
+
+header,
+main,
+footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+div#flex-menu {
+  display: flex;
+}
+
+div#flex-menu > a {
+  width: 160px;
+  height: 160px;
+  border: none;
+  background: white;
+  position: relative;
+  border-radius: 5px;
+  margin: 4px;
+  color: #666666;
+}
+
+div#flex-menu > a:hover {
+}
+
+div#flex-menu > a img {
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+div#flex-menu > a p {
+  position: absolute;
+  top: 110px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  text-align: center;
+}

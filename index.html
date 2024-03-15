@@ -1,34 +1,43 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja-JP">
   <head>
-    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>anyCSVtable</title>
-    <link href="style.css" rel="stylesheet" type="text/css" />
+    <title>menu</title>
+    <link href="./src/menu.css" rel="stylesheet" type="text/css" />
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="script.js"></script>
   </head>
 
   <body>
     <header>
-      <div>
-        <input id="load" type="button" value="Manual Load" />
-
-        <a id="cols-filter" tabindex="0">
-          表示列設定
-          <div id="cols-filter-modal">
-            <div id="cols-filter-modal-div"></div>
-          </div>
-        </a>
-        <input type="text" id="search-in" placeholder="全文検索..." />
-      </div>
+      <h2>
+        マテリアル開発部 開発マテリアル情報総覧システム（なんかいい感じの名前）
+      </h2>
     </header>
     <main>
-      <div id="table-container"></div>
+      <div id="flex-menu">
+        <a id="a-menu-MLNatural" href="./MList.html">
+          <img
+            width="60"
+            height="60"
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAAACXBIWXMAAAsTAAALEwEAmpwYAAAIFUlEQVR4nN1bd4wVRRhfBRWxgnj7fXsHZxQbipqo0dggdhONSixoLCQmKrYoMWKv2GPHroRYUA5P/8CGig/2m3d3RGyJiKKooCLYC6fem9Ex3+zu83G3b9/Ovj2880vmD253581vvl5wnF4gPd8brgRMVAKelwSLpYDvJMGXiqAoBU5XBMfrD0at7/wfSBFcKQlLSqBOWpLgKyXgFKc/U4lwv1pAewAX8Fi/5bYivMwWcAh6htbOut33021NQ3XBGej0VVIEp2cBHIK+OdpHa2cdJfB8KeBPKfAJp6+SXuBtkUZ/43Ua/ypRw94MVhI+Gf7tbyXwEqcvkxTwdFYuK8K5kvDakOM/SYFHO32dtNhym6xcjrgqBUpJ3sFOfyFJOCUzlwOXdaPTn0gXnIGK8KWMYLvYOjv9jXRb04aKcJa9HkPRfN8xdFNJcG8QyHgH835OXyfN7oXwDCnwWwsOT+NvOQrr9vdOJbCVDZlucQY4fZn0yyM3UEVvPAcYUsASKXB1COJ7JeBtKfB2KfDhwDrjQ/yNIjwzwWcvU+Se26ciNN3ubiUJ75AE49JwRBbhuAAQvGD+TXhI7WAFP5O+e6TzX5MS7gRJ+EuFq/lcCriLD6fbmkbqQvMgfk/TiCFR6KjnNW4bBBrwnvl3EXewiNJmsM6vdaC60DxIEjxrZZUFrtDzh6G5qKI3nhOQNTmeGvTHXeTutPbAdgzdVAksZPO98IJe6KxX3qu9wZUEH1m7NAE/lorePr0PttC8uSJ4J2ugEYr9h5LgVkn4ABcMMu8jcHWvgtYmyIA59YBNyb3lSsDVgWWvzWntw6heASwF3t/bYEPO3RD8HjyeTmLgo9wNmfTxGFsdU4ST2SLzYdhiK4KLJcEPKb7l7OkJKeCP9GoCT+UGVi8csllQl0oNdommhq1j9+pobGIrm4Hzs7XvbceurOrv+jn5aSlwqhVYMdzj77qEtxtb8zDcnFfycV8Duh12jCIwCzGfbqI4wvkJ7yytOyLTbU2NXH6xBVsqwgFhTFwpdp1dRXdnfs5xdwbdljXfIzyvPu4S3mkL1gAS8FqVQy/SC3FwCHpu7H4+nMqBBZeCrC+F8IvMCYcubLmxFPibLVjDYcL9JMHvSUk/czuea3BKCDhrzezYTIAVuSdYiXEAchobpkA6YFxYnOv+zZ9stc073J3IAKrGas0EuFasXAlWkju2whB9wBFZAAjuTsqFu9oaRsddSj1LEnRGapOauFhemQVZgI2Mx3Nmn4U42OS0PcWuxAbRSFLmuDwJtGdXGAx8Xkaw5eWdGFfRqFiX1yoAZF9wjRVg7vrVBzZI2tkvcgzOeXLM80Xmcgs4LItFTlwUSFhqiorkWcGWl48nhVy+Ju65JhwRPn8vX8DwriVguKdusIFovW646MOoKgc7rTcSE0m40g5wRaaSHWxYexZbbGL6SAK/iTnYnSGHJ+YLGDptAc+oF2y0Sj6MMaDiC/avmL2LeFiugAVKO8BF90ATRFREUGlSu9jlwzlxahKK9DtR1JUvYPjRCnDsJRBOiRPLtC6CqxgxB1vGzzidzJnDn9UN2BxMO+twdKQEXMQimkbEpYBbDGDCyTHPlpt9xXAvT8AqbONYctTo7LdJjWr2s6yjXJZRAtulQBXD4SuC/fC6HoAJPzf7cEUkTw4TPGIPNsxno0OFXLpQEbzBIEq+u1f3VIxjaM5W2M1wZYMvQAo8NNgTHo05XAc/KxHuniuHi3hBJrDRirIbReB3E8mfODtht8L1qx4SEHYezLcC51XLbLhxlifgLmrcNRXYksD943NgODtNAzw0ai0cH1daeC6+x+k7R3Sh5FyamzgLWM62JhNne3CC3LHp9QhL/L65SB/GVLmgo+ueF+kJ+L56wQYF7xZnABspm+AjKtxJwgfjLoQrosFz+Do3cW5rGF0X2H8P7+5lxE/gy6l+nPBFI840Yogk/DXm+dzEODvLIpyfC9hK96IETKotViijCmWcOwoOB6cnPs8izr53ULKBSg3WrAJ/1+U37pLici4y3CtCc9xvcJjK1ZAwqViaE3dfrMFdeMbq9rj4NsfdKJygW1n1vbBexTpfvXAeBSPeUblwVuBqrtIkAub4VRJ+arUxwRHhZT1V5VIej6r/PAZR5XArOGU06kFQzIe7cFa8GBfhAO7TlATsEYic26AIXk0PGO8I9Nid0A2EisS4tl8Nal22DboE7s6MBcu9nvJUjcDfIm5VjBytqP0D8H65BRPVoQhfigwUi3E1zobvzipXMwm/yIGzfmU0twb1CAsJ/5ICbuImVXQI0/MJxvdjkoDQd4bzzpy0s8RE+3N9qkr4GIn7krLfzaOkQ/hW4iSfrNI2MfNUPHJUMbhtxoN9OJzFlNM7M5Yk8PpIKnrMfBBclVjBJFxZ7jZYDrFUAftmZAeqkiJckKyfsJhTwWq93TVAtjgDeL6CqxiS8OfkfXEVqxN/x7YjNgix09mpkVQmUokPmLb1GehXqyS8LUjcYRIboqBXDK8ldSW6XeInURalhbe9zWhinJRYN8pKRdjT1hXVsVojnQ05uyoj0BIPu0V7WZPm6VUBd6dqMGfkhCI8uXzJPu6bpu0as8+vBmi7u5WTB3UF/dmZebU5Al2Gq7tP1LDRS72HuRh4ni+splGqc5R/Slz/J8UBlXF3hGdwA736mCIea6Z4gnmRlmjxZG3Q1nEnMAPW+riwFt72HKbxlFw4kLKIDQ3nw0E1w/SAZvN/xWH3wu5rrR7Qgv4BNmaDJe+rdrQAAAAASUVORK5CYII="
+          />
+          <p>天然マテリアル</p>
+        </a>
+        <a id="a-menu-MLNatural" onclick="alert('開発中の機能です');">
+          <img
+            width="60"
+            height="60"
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAIFElEQVR4nO1deWwVRRxeELwvCu3OvBaJZxRRE1HRxBCvGI9IFI/IH0aNRI0xkhgFxJgSo6gYo+AVrtD9TV/Raky8UBRtQDEEY/CICpigERQREQU53vsNHfPb9jW7895r33vd6+3ul0zSdKezs983v5nZmW+2hpEiRYoUKVJEBAzwKgb4KxdSeZmoTCo77OeLPJgP5DtFCPv5ki7AlrCfL/Jg7Xg1EeUH+VR22M9XN+CA3V4KYCg1JOxnqivwVIAoCYAHq/57gfk0AlIB6hc8jYBUgESDpxGQCpBo8DQCUgESDZ5GQCpAosHTCEgFSDR4GgGpAIkGTyMgFSDR4GkEpAIkGjyNgFSAxMJsx0s1S8nOastggDucZWQEXu5PbWMIJuQXmq2ks9oyOODrWhlr/altzJABvM5FHGC3mc1fUG05zW25s8lNoUXBJH9qHRcoNYSBXK+13DdrLY6DfEMr6zujVQ31ttIxQgbkrVrrl0yosTWXZ6nTOCBqIkzxttZxQac6hAH+6CYLrcEWywHbtAF9k9GlhnlT6RiBg7xLIz/f2KZOHmy5rF2NYQIPaFEw1ZtaxwRjO9WhXOBmTYBXvCqfA77sigKBW1s61RFelV/34CAf0Aja3yxUi1fljxKKM4F7tSiY5lX5dQ0T1FFc4Dat9T/r9X044FztHn+OXKyOMZIOLuQsbeazxwTV5PV9MpYayQH/1aJglpFkjOhUx9Eyg9YyZ/t1PwayVevqdrV0qgYjqeCAT2iE/NUg1LF0rSmrTioxh/fj3NiTRhLBs2oUF7jbSYYp5MN91wUu8Jv83oj7r6lDmUbSwACf1/r+3/kCdaRj1rI/GAHsKHjBSBJGd6gMA9zn7n7kfWXF8V+AnAnqRCMpYIALtdb/yynz1GGO2cqeIAXoFWGRkQQ0Z9Wp+gE6JuTt5QbmwBKg5Fl1uhF3MMCsNgj+QAtxfdNSgbsqJO2DzDI1mhL9XILQbi5y55ath4WTi6JA4DIjzmhqz52lb5IwkDcXrnOQj1TaYon4wt/1ilCdAIA3FpeLB5shd44RVzCQb2vkf1U4wU4zIC5wey0C0LqRZ2OBkO8YcYQJ+Qn66Xdm4TXlFuQG7rPlciLeJh/kci/Hg4yVv8iIGxjIlVrr/7zv4gI1nGZCng+stSaQq4w4gbXnJ+oPaQq8pHCdNkhCJ12PgjjZWHSbCRPyQ20rclPYhJeIgnWx+MJKkc2EWj/kJxSucyGnhE52+SiocxtLqxrKhPza1fpBvtV3XakhHOS3fpJINpfCCmt/MNtyZ5Z4Qfymrm0sRTYTgQfpQfuuC5zkdysejAD1bWMpbTMBZxYm5Jqwu5mBBcRNNEsz6g3FMxu3zSRj4RVhk1tFmhoHm8mrzjwc5KcRILayKKg3GwtZPvqzmdhvxREglleXptWPzQTwD1flAZ9z5uEg362g1R2gLUravKHEQU6njZPwBMDtjZ3qaCPqKF7RxN1siWosXKfVxkq+iMhAPlSi7OlhRgET8lEjyhizVB3PAP/WWv/jzjwM8LVKHrZxqWJ6+bRXXDt5OKew71AJyJukf0CW9ipOyKoRRlRBFg93K8adtMmi2cVlJYSNEorr5dtdUa0CAD5VzUuVLYDArSWFjCKowkV7uSBnOPMwwCUVkwZyun4PLuTMMLugSNtYyNqhVXRbwWZC4JY6ocybpupvEKZI6B2EZ4Q7CLvqNs+IElraVLNuM+Eg73fmYQJfDJs4HlcbC1k6ytlMCBSyRQLVeWJRsbHYNhPNw5kBeaczDxP4dNiE8bjaWBhgh6tlCNzoPINFsyAO+E/ohAlfoqAjVPJLncU1hbzFmYcJ+ViEWm03E/nza3lWmlAwkKsjZWMpYTNZ75xr06s7Wc5DJ144I3QQAgj5WWRsLE0if6FeGVPgtc48TMgHA+oKtpDBizZeKHGBNzDADUGJGoqNpchmIuQa53WaBTHA3wIgf0OpUy69yyJBifBJoOSbgJf1ZzMhMEveG0jrt3ByuXpywOtjaWPhILu01v+xK0OXGla8IeNPauhnv5dOQQYlAG0wBcG9YUJunH5zGg+ceZglbwvqwRuiIoBtt8mN810A/aShbWByolUN5YDfB/XQLCJdkF0XkK3+CyDkR66bCnlPqA8tcGOpNXr6XZAzoV4BVgQggHuNnFn581zXQa4I8qF5YRoq8CbqcijRz37+S8T+6uG/ANqiGp3p0q67d8QSlBjgPv8F0D564dzxIuhnf5OUmMC9/gtQtE/q/qIVDcoJFmBrAAK4+/iiQVjg7MQKAEEMwvo0VHsNp7NbJb5QlYjEgpiGlnoRK1qGEDgnbDJ4CMnp/A54KQJ/ci2ILVDD9cW6qhOQeQs3c5DvMYHP0GFuEppn8+PpSypk9hqzVB1OiX62v66SzY+nPJSX/oYL+T4X+LPX/xo31KUIWwArf3HRiUeQq50i2MQQCbpNccBlZVxIb7eVePorhX0A3MLJtI9byuszePKxmzgxgoT+IbxCJOjdkY0uNYxe2MqQvoOEokPcQdW91x4517vNInzJCBo96/36Fl1fNKzkIO9mljrDNuv2HMK+Usv3pQnyDooUIyTQvakOg5k6EwdOB0igsLccB9vXizpOIFfpL6KBw+7rAecHMtCJCG3uA84PJHrtQ9Y93vxFdL6XPgPfs8qI2+JmtuI1pB4ObC5o5XUtcWR/D4k4a89P9Gr7cSYTuNh+Cwa5jpaA6cBCUl+4uFMAmwObi402NyBXEFfEGf0jioEI/h9/NCKpQIjhGwAAAABJRU5ErkJggg=="
+          />
+          <p>合成マテリアル</p>
+        </a>
+      </div>
     </main>
     <footer>
-      <div id="table-pagination"></div>
-      <p id="message" style="font-size: 0.5em"></p>
+      <p id="last-mod" style="font-size: 0.5em">
+        最終更新日：<span id="last-mod-span">割と最近</span>
+      </p>
     </footer>
   </body>
 </html>
