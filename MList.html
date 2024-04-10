@@ -6,6 +6,8 @@
     <title>anyCSVtable</title>
     <link href="./src/style.css" rel="stylesheet" type="text/css" />
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script type="module" src="./src/module.js"></script>
     <script src="./src/script.js"></script>
   </head>
 
@@ -15,15 +17,20 @@
     </div>
     <header>
       <div>
-        <input id="load" type="button" value="Manual Load" />
-
-        <a id="toggle-cols" tabindex="0">
+        <a id="toggle-cols" class="tools" tabindex="0">
           表示列設定
-          <div id="toggle-cols-modal">
+          <div id="toggle-cols-modal" class="tools-inner">
             <div id="toggle-cols-modal-div"></div>
           </div>
         </a>
         <input type="text" id="search-in" placeholder="全文検索..." />
+        <a id="admin-panel" class="tools" tabindex="0">
+          管理用メニュー
+          <div class="tools-inner">
+            <input id="load-csv" type="button" value="Manual Load CSV" />
+            <input id="load-xls" type="button" value="Manual Load XLS" />
+          </div>
+        </a>
       </div>
     </header>
     <main>

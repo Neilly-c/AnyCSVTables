@@ -6,46 +6,101 @@ let gStats;
 
 $(function () {
   getStatusFromLocalStorage();
+  let _start = 0;
+  let _end = 0;
+
+  function isEmptyObj(obj) {
+    let flag = false;
+    $.each(obj, (i, v) => {
+      if (v.trim()) {
+        flag = true;
+        return false;
+      }
+    });
+    return flag;
+  }
 
   /*read csv file automatically (CORS policy legal)*/
   async function autoLoadCSVData() {
+    $("#message").html("Loading...");
+    _start = performance.now(); //track start
     const _RESOPNSE = await fetch("./データ抽出用.csv");
     const _FILE_CONTENTS = await _RESOPNSE.text();
     gMasterData = csvTo2DArray(_FILE_CONTENTS);
-    gMasterHead = JSON.parse(JSON.stringify(gMasterData[0]));
-    gMasterData.shift();
-    gDisplayedData = JSON.parse(JSON.stringify(gMasterData));
-    console.log(gMasterData);
-    initialzeTableContainer();
-    generatePagination();
-    displayNewTable();
+    gMasterData = gMasterData.filter(isEmptyObj);
+    commonProcess();
   }
-  autoLoadCSVData();
+  //autoLoadCSVData();
+
+  /*read xlsx file automatically (CORS policy legal)
+    powered by sheet.js HOORAY! */
+  async function autoLoadXLSXData() {
+    $("#message").html("Loading...");
+    _start = performance.now(); //track start
+    const _URL = "./240115_自社天然香料の製法リスト.xlsx";
+    const _FILE_CONTENTS = await (await fetch(_URL)).arrayBuffer();
+    const _WORKBOOK = XLSX.read(_FILE_CONTENTS);
+    const _WORKSHEET = _WORKBOOK.Sheets["⇒データ抽出用"];
+    gMasterData = XLSX.utils.sheet_to_json(_WORKSHEET, { header: 1 });
+    gMasterData = gMasterData.filter(isEmptyObj);
+    commonProcess();
+  }
+  autoLoadXLSXData();
 
   /*read local file manually*/
-  const PICKER_OPTS = {
+  const PICKER_CSV = {
     types: [
       {
-        description: "Texts(.txt)",
+        description: "comma separated values(.csv)",
         accept: {
-          "text/*": [".txt"],
+          "text/*": [".csv"],
         },
       },
     ],
     multiple: false,
   };
 
-  $("#load").on("click", async function () {
-    let _start = 0;
-    let _end = 0;
-
-    [fileHandle] = await window.showOpenFilePicker(PICKER_OPTS);
+  $("#load-csv").on("click", async function () {
+    let [fileHandle] = await window.showOpenFilePicker(PICKER_CSV);
 
     $("#message").html("Loading...");
     _start = performance.now(); //track start
     const _FILE = await fileHandle.getFile();
     const _FILE_CONTENTS = await _FILE.text();
     gMasterData = csvTo2DArray(_FILE_CONTENTS);
+    gMasterData = gMasterData.filter(isEmptyObj);
+    commonProcess();
+  });
+
+  const PICKER_XLS = {
+    types: [
+      {
+        description: "excel files(.xls .xlsx)",
+        accept: {
+          "text/*": [".xls", ".xlsx"],
+        },
+      },
+    ],
+    multiple: false,
+  };
+
+  $("#load-xls").on("click", async function () {
+    let [fileHandle] = await window.showOpenFilePicker(PICKER_XLS);
+
+    $("#message").html("Loading...");
+    _start = performance.now(); //track start
+    const _FILE = await fileHandle.getFile();
+    const _FILE_CONTENTS = await _FILE.arrayBuffer();
+    const _WORKBOOK = XLSX.read(_FILE_CONTENTS);
+    const _WORKSHEET = _WORKBOOK.Sheets["⇒データ抽出用"];
+    gMasterData = XLSX.utils.sheet_to_json(_WORKSHEET, { header: 1 });
+    gMasterData = gMasterData.filter(isEmptyObj);
+    commonProcess();
+  });
+  /* read local file end */
+
+  function commonProcess() {
+    gMasterData = gMasterData.filter((row) => row.join("").length > 0);
     gMasterHead = JSON.parse(JSON.stringify(gMasterData[0]));
     gMasterData.shift();
     gDisplayedData = JSON.parse(JSON.stringify(gMasterData));
@@ -59,8 +114,7 @@ $(function () {
     _end = performance.now(); //track end
     const _TIME = (_end - _start) | 0;
     $("#message").html("Data loaded successfully in " + _TIME / 1000 + "s");
-  });
-  /* read local file end */
+  }
 
   $("#search-in").on("change", function () {
     searchAll();
@@ -76,9 +130,7 @@ function csvTo2DArray(csvText) {
   const _ROWS = csvText.split(/\n/g);
   for (var i = 0; i < _ROWS.length; i++) {
     const _COLS = _ROWS[i].split(",");
-    if (_COLS[0]) {
-      _result.push(_COLS);
-    }
+    _result.push(_COLS ? _COLS : "-");
   }
   return _result;
 }
@@ -96,7 +148,8 @@ function initialzeTableContainer() {
 
   //列検索の生成
   Object.keys(gMasterHead).forEach((key) => {
-    const _ELEM_TH = $("<th>").attr("cols", key).text(gMasterHead[key]);
+    const _ELEM_TH = $("<th>").attr("cols", key);
+    _ELEM_TH.append(`<p class="p-label">${gMasterHead[key]}</p>`);
     const _ELEM_TH_CTRL = $(`<div class="single-ctrl">`);
     _ELEM_TH_CTRL.append(`<div class="indicator"></div>`);
     const _ELEM_DIV_MODAL = $(`<div class="single-filter-modal"></div>`);
@@ -183,7 +236,7 @@ function displayNewTable() {
     const _ITEM = gDisplayedData[i];
     const _ELEM_TR = $("<tr>");
     Object.values(_ITEM).forEach((value) => {
-      const td = $("<td>").text(value);
+      const td = $("<td>").append(`<p>${value}</p>`);
       _ELEM_TR.append(td);
     });
     _ELEM_TBODY.append(_ELEM_TR);

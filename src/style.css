@@ -97,7 +97,7 @@ div#table-pagination input {
   display: none;
 }
 
-a#toggle-cols {
+a.tools {
   position: relative;
   display: inline-block;
   border: 1px solid #ccc;
@@ -108,7 +108,7 @@ a#toggle-cols {
   cursor: pointer;
 }
 
-div#toggle-cols-modal,
+div.tools-inner,
 div.single-filter-modal {
   display: none;
 }
@@ -131,8 +131,9 @@ footer {
 
 table {
   border-collapse: collapse;
-  width: 100%;
   margin-top: 20px;
+  table-layout: fixed;
+  width: fit-content;
 }
 
 thead {
@@ -156,7 +157,20 @@ td {
 
 tbody tr > td {
   background: white;
+}
+
+tbody tr > td > p {
+  margin: 0;
+  overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+tbody tr > td > p:hover {
+  overflow: visible;
+  white-space: unset;
+  text-overflow: unset;
 }
 
 tbody tr:nth-child(even) > td {
@@ -177,6 +191,14 @@ td:nth-child(-n + 3) {
 tr.sortable > th {
   cursor: pointer;
   position: relative;
+  width: 200px;
+}
+
+p.p-label {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /*3行以上の内容は切る*/
+  overflow: hidden;
 }
 
 div.single-ctrl {
@@ -252,7 +274,7 @@ a.single-filter.active {
   background: #ffff66;
 }
 
-a#toggle-cols:focus-within div#toggle-cols-modal,
+a.tools:focus-within div.tools-inner,
 a.single-filter:focus-within div.single-filter-modal {
   display: block;
   position: absolute;
